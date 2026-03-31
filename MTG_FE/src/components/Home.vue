@@ -1,11 +1,10 @@
 <script setup>
-// Logic goes here
 </script>
 
 <template>
   <main>
-    <h1>Welcome to My Application</h1>
-    <p>This is the home page.</p>
+    <h1>Welcome to MTG League Tracker</h1>
+    <p>This is the home page</p>
   </main>
 </template>
 

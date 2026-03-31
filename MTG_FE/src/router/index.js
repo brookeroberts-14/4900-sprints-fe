@@ -3,6 +3,7 @@ import Home from '../components/Home.vue'
 import Register from '../components/Register.vue'
 import Auth from '../components/Auth.vue'
 import LeagueList from '../components/LeagueList.vue'
+import FormatList from '../components/FormatList.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/leagues',
     name: 'LeagueList', 
     component: LeagueList
+  },
+  {
+    path: '/formats',
+    name: 'FormatList',
+    component: FormatList
   },
 ]
 

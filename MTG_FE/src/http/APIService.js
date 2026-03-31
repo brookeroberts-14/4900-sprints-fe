@@ -16,7 +16,15 @@ export class APIService {
     return axios.post(url, credentials);
   }
   getLeagues() {
-  const url = `${API_URL}/league_tracker/leagues/`;
-  return axios.get(url);
-}
+    const url = `${API_URL}/league_tracker/leagues/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.get(url, {headers: headers});
+  }
+  getFormats() {
+    const url = `${API_URL}/league_tracker/formats/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.get(url, {headers: headers});
+  }
 }

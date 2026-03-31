@@ -46,8 +46,19 @@ const register = () => router.push("/register")
             <router-link :to="{name: 'Home'}">Home</router-link> | 
           </li>
 
-          <li class="nav-item">
-            <router-link :to="{name: 'LeagueList'}">Leagues</router-link>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              Leagues
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <router-link class="dropdown-item" :to="{name: 'LeagueList'}">View Leagues</router-link>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <router-link class="dropdown-item" :to="{name: 'FormatList'}">Formats</router-link>
+              </li>
+            </ul>
           </li>
           
           <template v-if="!authenticated">
