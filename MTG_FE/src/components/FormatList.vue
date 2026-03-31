@@ -39,6 +39,11 @@
             </div>
           </div>
         </div>
+        <div class="text-center mt-3">
+            <button type="button" class="btn btn-primary btn-sm shadow-sm">
+                Create New Format
+            </button>
+      </div>
       </div>
     </div>
   </div>
