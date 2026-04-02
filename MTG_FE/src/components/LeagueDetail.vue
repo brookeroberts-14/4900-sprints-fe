@@ -291,7 +291,8 @@ import { APIService } from '../http/APIService'
 const apiService = new APIService()
 const route = useRoute()
 const router = useRouter()
-const id = route.params.id
+const pk = route.params.pk
+console.log(pk);
 
 const loading = ref(true)
 const league = ref(null)
@@ -324,13 +325,13 @@ const leaderboard = computed(() => [...players.value].sort((a, b) => b.league_pl
 
 async function loadData() {
   try {
-    const res = await apiService.getLeague(id)
+    const res = await apiService.getLeagueDetail(pk)
     league.value = res.data
     loading.value = false
-    const lid = parseInt(id)
-    try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {}
-    try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
+    const lid = parseInt(pk)
+    //try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {}
+    //try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
+    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
   } catch (e) {
     console.error(e)
     loading.value = false
@@ -338,12 +339,12 @@ async function loadData() {
 }
 
 async function handleJoin() {
-  try { await apiService.createLeaguePlayer({ league: parseInt(id) }); showJoin.value = false; loadData() }
+  try { await apiService.createLeaguePlayer({ league: parseInt(pk) }); showJoin.value = false; loadData() }
   catch (e) { alert('Failed to join: ' + JSON.stringify(e.response?.data || e.message)) }
 }
 
 async function handleCreateMatch() {
-  try { await apiService.createMatch({ league: parseInt(id), number: matchNumber.value }); showMatchModal.value = false; loadData() }
+  try { await apiService.createMatch({ league: parseInt(pk), number: matchNumber.value }); showMatchModal.value = false; loadData() }
   catch (e) { alert('Failed: ' + JSON.stringify(e.response?.data || e.message)) }
 }
 
@@ -377,7 +378,7 @@ async function handleRecordResult() {
 
 async function handleDeleteLeague() {
   if (!confirm(`Delete "${league.value?.name}"?`)) return
-  try { await apiService.deleteLeague(id); router.push('/leagues') }
+  try { await apiService.deleteLeague(pk); router.push('/leagues') }
   catch (e) { alert('Failed to delete') }
 }
 

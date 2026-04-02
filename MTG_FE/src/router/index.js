@@ -33,7 +33,7 @@ const routes = [
     component: FormatList
   },
   {
-    path: '/league_details',
+    path: '/league_detail/:pk',
     name: 'LeagueDetail',
     component: LeagueDetail
   }

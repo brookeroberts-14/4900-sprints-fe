@@ -27,4 +27,10 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.get(url, {headers: headers});
   }
+  getLeagueDetail(param_pk) {
+    const url = `${API_URL}/league_tracker/league/${param_pk}`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.get(url, {headers: headers});
+  }
 }
