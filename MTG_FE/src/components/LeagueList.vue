@@ -33,7 +33,7 @@
                     <td>{{ league.name }}</td>
                     <td>{{ league.format.name }}</td>
                     <td class="text-center">
-                      <button class="btn btn-sm btn-info text-white">Details</button>
+                      <button class="btn btn-sm btn-info text-white"><router-link  :to="{name: 'LeagueDetail'}" class="text-white" style="text-decoration: none;">Details</router-link></button>
                     </td>
                   </tr>
                 </tbody>
