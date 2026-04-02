@@ -5,6 +5,7 @@ import Auth from '../components/Auth.vue'
 import LeagueList from '../components/LeagueList.vue'
 import FormatList from '../components/FormatList.vue'
 import LeagueDetail from '../components/LeagueDetail.vue'
+import CreateLeague from '../components/CreateLeague.vue'
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/league_detail/:pk',
     name: 'LeagueDetail',
     component: LeagueDetail
+  },
+  {
+    path: '/create_league',
+    name: 'CreateLeague',
+    component: CreateLeague
   }
 ]
 

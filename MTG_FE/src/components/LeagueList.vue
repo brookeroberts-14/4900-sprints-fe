@@ -47,9 +47,7 @@
         </div>
       </div>
       <div class="text-center mt-3">
-            <button type="button" class="btn btn-primary btn-sm shadow-sm">
-                Create New League
-            </button>
+            <button type="button" class="btn btn-primary btn-sm shadow-sm"><router-link :to="{name: 'CreateLeague'}" class="text-white" style="text-decoration: none;">Create New League</router-link></button>
       </div>
     </div>
   </div>
@@ -57,6 +55,7 @@
 
 <script>
 import { APIService } from '../http/APIService';
+import router from '../router';
 const apiService = new APIService();
 
 export default {
