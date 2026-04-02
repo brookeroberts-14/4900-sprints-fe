@@ -286,9 +286,9 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { APIService } from '../http/APIService'
+import { APIService } from '../http/APIService';
+const apiService = new APIService();
 
-const apiService = new APIService()
 const route = useRoute()
 const router = useRouter()
 const pk = route.params.pk
@@ -328,6 +328,10 @@ async function loadData() {
     const res = await apiService.getLeagueDetail(pk)
     league.value = res.data
     loading.value = false
+    //const lid = parseInt(id)
+    //try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
+    //try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
+    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
 <<<<<<< HEAD
     const lid = parseInt(pk)
     //try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {}

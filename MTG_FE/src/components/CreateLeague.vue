@@ -85,7 +85,7 @@ const apiService = new APIService()
 const router = useRouter()
 
 const formats = ref([])
-const loading = ref(flase)
+const loading = ref(false)
 const showMsg = ref('')
 
 const from = reactive({
