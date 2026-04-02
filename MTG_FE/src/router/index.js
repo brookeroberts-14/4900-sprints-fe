@@ -4,6 +4,7 @@ import Register from '../components/Register.vue'
 import Auth from '../components/Auth.vue'
 import LeagueList from '../components/LeagueList.vue'
 import FormatList from '../components/FormatList.vue'
+import LeagueDetail from '../components/LeagueDetail.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     name: 'FormatList',
     component: FormatList
   },
+  {
+    path: '/league_details',
+    name: 'LeagueDetail',
+    component: LeagueDetail
+  }
 ]
 
 
