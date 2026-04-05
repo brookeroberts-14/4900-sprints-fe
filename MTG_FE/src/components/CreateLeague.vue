@@ -40,7 +40,7 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label text-mtg-secondary small">Decks Per User</label>
-                                    <input v-model.number="form.deck_per_user" type="number" min="1" class="form-control form-control-dark" data-testid="create-league-decks-per-user" />
+                                    <input v-model.number="form.decks_per_user" type="number" min="1" class="form-control form-control-dark" data-testid="create-league-decks-per-user" />
                                 </div>
                                 <div class="col-md-6 md-3">
                                     <label class="form-label text-mtg-secondary small">Match Quantity</label>
@@ -88,7 +88,7 @@ const formats = ref([])
 const loading = ref(false)
 const showMsg = ref('')
 
-const from = reactive({
+const form = reactive({
     name: '', format: '', start_date: '', end_date: '',
     decks_per_user: 1, match_qty: 1, points_win: 3, points_loss: 0, points_draw: 1,
 })
