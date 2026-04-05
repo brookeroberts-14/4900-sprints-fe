@@ -33,4 +33,10 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.get(url, {headers: headers});
   }
+  createLeague(league) {
+    const url = `${API_URL}/league_tracker/leagues/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, league, { headers: headers });
+  }
 }

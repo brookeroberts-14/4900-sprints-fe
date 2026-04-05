@@ -20,7 +20,7 @@
                                 <select v-model="form.format" class="form-select form-control-dark" data-testid="create-league-format-select">
                                     <option value="">Select format</option>
                                     <option v-for="f in formats" :key="f.pk" :value="f.pk">
-                                        {{ f.name }} ({{ f.players_per_match  }}) players, {{ f.rounds_per_match }} rounds)
+                                        {{ f.name }} ({{ f.players_per_match  }}) players, {{ f.rounds_per_match }} round(s)
 
                                     </option>
 
@@ -106,6 +106,7 @@ async function handleSubmit() {
     try {
         const payload = {
             name: form.name,
+            format: parseInt(form.format),
             start_date: new Date(form.start_date).toISOString(),
             end_date: new Date(form.end_date).toISOString(),
             decks_per_user: form.decks_per_user,
@@ -114,7 +115,8 @@ async function handleSubmit() {
             points_loss: form.points_loss,
             points_draw: form.points_draw,
         }
-        if (form.format) payload.format = parseInt(form.format)
+        console.log('form.format:', form.format)
+        console.log('payload being sent:', payload)
 
         const res = await apiService.createLeague(payload)
         showMsg.value = 'success'

@@ -328,21 +328,10 @@ async function loadData() {
     const res = await apiService.getLeagueDetail(pk)
     league.value = res.data
     loading.value = false
-    //const lid = parseInt(id)
-    //try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
-    //try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
-<<<<<<< HEAD
-    const lid = parseInt(pk)
-    //try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {}
-    //try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
-=======
     const lid = parseInt(id)
     try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
     try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
     try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
->>>>>>> 93f7e67 (idk)
   } catch (e) {
     console.error(e)
     loading.value = false
