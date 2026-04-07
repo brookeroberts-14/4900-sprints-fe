@@ -39,4 +39,28 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.post(url, league, { headers: headers });
   }
+  getLeaguePlayers() {
+    const url = `${API_URL}/league_tracker/league_players/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.get(url, {headers: headers});
+  }
+  getDecks() {
+    const url = `${API_URL}/league_tracker/decks/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.get(url, {headers: headers});
+  }
+  createLeaguePlayer(league_player) {
+    const url = `${API_URL}/league_tracker/league_players/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, league_player, {headers: headers});
+  }
+  deleteLeaguePlayer(pk) {
+    const url = `${API_URL}/league_tracker/league_player/${pk}/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.delete(url, {headers: headers});
+  }
 }

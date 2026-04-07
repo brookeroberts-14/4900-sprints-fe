@@ -80,19 +80,36 @@
           <div v-if="activeTab === 'players'">
             <div class="card dark-card shadow">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 text-mtg-light">Players ({{ players.length }})</h5>
-                <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="add-player-btn">
-                  <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> Join
-                </button>
+                  <h5 class="mb-0 text-mtg-light">Players ({{ players.length }})</h5>
+                <div d-flex gap-2>
+                  <button class="btn btn-mtg-primary btn-sm" @click="showAddPlayerModal = true">
+                    <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> Add Player
+                  </button>
+                  <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="add-player-btn">
+                    <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> Join
+                  </button>
+                </div>
               </div>
               <div class="card-body p-0">
                 <table class="table table-dark-mtg align-middle mb-0">
-                  <thead><tr><th>#</th><th>Player</th><th class="text-end">Points</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th class="text-end">Points</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     <tr v-for="(p, idx) in players" :key="p.pk" :data-testid="`player-row-${p.pk}`">
                       <td class="text-mtg-muted">{{ idx + 1 }}</td>
                       <td class="text-mtg-light fw-semibold">{{ p.player_name }}</td>
                       <td class="text-end text-mtg-accent fw-bold">{{ p.league_player_points }}</td>
+                      <td>
+                        <button class="btn btn-outline-danger btn-sm" @click="handleRemovePlayer(p.pk)">
+                          <font-awesome-icon :icon="['fas', 'trash']" />
+                        </button>
+                      </td>
                     </tr>
                     <tr v-if="players.length === 0"><td colspan="3" class="text-center text-mtg-secondary py-3">No players yet.</td></tr>
                   </tbody>
@@ -195,6 +212,37 @@
       </div>
     </div>
 
+    <!-- Add Player Manual Modal-->
+    <div v-if="showAddPlayerModal" class="modal-backdrop fade show"></div>
+      <div v-if="showAddPlayerModal" class="modal d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content bg-mtg-dark text-mtg-light border-mtg-primary">
+            <div class="modal-header border-mtg-secondary">
+              <h5 class="modal-title">Add Player to League</h5>
+              <button type="button" class="btn-close btn-close-white" @click="showAddPlayerModal = false"></button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="handleAddPlayer">
+                <div class="mb-3">
+                  <label class="form-label">Player ID or Username</label>
+                  <input 
+                    v-model="addPlayerForm.username" 
+                    type="text" 
+                    class="form-control bg-dark text-white border-secondary" 
+                    placeholder="Enter player details..."
+                    required
+                  >
+                  <div class="form-text text-muted">Enter the exact ID or Username of the player.</div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-secondary" @click="showAddPlayerModal = false">Cancel</button>
+                  <button type="submit" class="btn btn-mtg-primary">Add to League</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     <!-- Create Match Modal -->
     <div v-if="showMatchModal" class="modal d-block modal-dark" @click.self="showMatchModal = false">
       <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -287,12 +335,12 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { APIService } from '../http/APIService';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 const apiService = new APIService();
 
 const route = useRoute()
 const router = useRouter()
 const pk = route.params.pk
-console.log(pk);
 
 const loading = ref(true)
 const league = ref(null)
@@ -302,6 +350,7 @@ const matches = ref([])
 const activeTab = ref('overview')
 
 const showJoin = ref(false)
+const showAddPlayerModal = ref(false)
 const showMatchModal = ref(false)
 const showDeckModal = ref(false)
 const showResultModal = ref(false)
@@ -310,6 +359,7 @@ const matchNumber = ref(1)
 
 const deckForm = reactive({ name: '', url: '', league_player: '' })
 const resultForm = reactive({ round: '', player: '', result: 'w', points: 0 })
+const addPlayerForm = reactive({ username: '', })
 
 const tabs = [
   { key: 'overview', label: 'Overview', icon: 'trophy' },
@@ -328,15 +378,11 @@ async function loadData() {
     const res = await apiService.getLeagueDetail(pk)
     league.value = res.data
     loading.value = false
-    //const lid = parseInt(id)
-    //try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
-    //try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
 
-    const lid = parseInt(id)
+    const lid = parseInt(pk)
     try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
     try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
+    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
 
   } catch (e) {
     console.error(e)
@@ -346,7 +392,22 @@ async function loadData() {
 
 async function handleJoin() {
   try { await apiService.createLeaguePlayer({ league: parseInt(pk) }); showJoin.value = false; loadData() }
-  catch (e) { alert('Failed to join: ' + JSON.stringify(e.response?.data || e.message)) }
+  catch (e) { alert('Failed to join: ' + JSON.stringify(e.response?.data.detail || e.message)) }
+}
+
+async function handleAddPlayer() {
+  try {
+    await apiService.createLeaguePlayer({ 
+      league: parseInt(pk), 
+      player: addPlayerForm.username
+    });
+    
+    showAddPlayerModal.value = false;
+    addPlayerForm.username = '';
+    loadData();
+  } catch (e) {
+    alert('Failed to add player: ' + JSON.stringify(e.response?.data || e.message));
+  }
 }
 
 async function handleCreateMatch() {
@@ -391,6 +452,21 @@ async function handleDeleteLeague() {
 async function handleDeleteMatch(pk) {
   try { await apiService.deleteMatch(pk); loadData() }
   catch (e) { alert('Failed to delete match') }
+}
+
+async function handleRemovePlayer(playerPk) {
+  if (!confirm("Are you sure you want to remove this player from the league?")) {
+    return;
+  }
+  try {
+    await apiService.deleteLeaguePlayer(playerPk);
+    await loadData();
+    
+    alert("Player removed successfully.");
+  } catch (e) {
+    console.error(e);
+    alert('Failed to remove player: ' + (e.response?.data?.detail || e.message));
+  }
 }
 
 onMounted(loadData)
