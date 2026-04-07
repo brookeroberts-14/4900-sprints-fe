@@ -63,4 +63,34 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.delete(url, {headers: headers});
   }
+  createMatch(match) {
+    const url = `${API_URL}/league_tracker/matches/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, match, {headers: headers});
+  }
+  getMatches() {
+    const url = `${API_URL}/league_tracker/matches/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.get(url, { headers: headers });
+  }
+  deleteMatch(pk) {
+    const url = `${API_URL}/league_tracker/match/${pk}/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.delete(url, { headers: headers });
+  }
+  createMatchRound(matchRound) {
+    const url = `${API_URL}/league_tracker/match_rounds/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, matchRound, { headers: headers });
+  }
+  createMatchRoundPlayer(matchRoundPlayer) {
+    const url = `${API_URL}/league_tracker/match_round_players/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, matchRoundPlayer, { headers: headers });
+  }
 }

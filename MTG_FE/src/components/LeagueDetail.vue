@@ -62,9 +62,9 @@
             <div class="col-md-4">
               <div class="card dark-card p-3">
                 <h6 class="text-mtg-secondary small text-uppercase">League Info</h6>
-                <div class="d-flex justify-content-between"><span class="text-mtg-secondary">Decks/User</span><span class="text-mtg-light">{{ league.decks_per_user }}</span></div>
-                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Match Qty</span><span class="text-mtg-light">{{ league.match_qty }}</span></div>
-                <div v-if="league.format" class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Format</span><span class="text-mtg-light">{{ league.format.name }}</span></div>
+                <div class="d-flex justify-content-between"><span class="text-mtg-secondary">Decks/User</span><span class="text-mtg-secondary">{{ league.decks_per_user }}</span></div>
+                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Match Qty</span><span class="text-mtg-secondary">{{ league.match_qty }}</span></div>
+                <div v-if="league.format" class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Format</span><span class="text-mtg-secondary">{{ league.format.name }}</span></div>
               </div>
             </div>
             <div class="col-md-4">
@@ -143,11 +143,11 @@
                 </div>
                 <div v-if="m.participants?.length" class="mb-2">
                   <small class="text-mtg-muted text-uppercase">Participants:</small>
-                  <span v-for="p in m.participants" :key="p.pk" class="badge bg-mtg-surface border-mtg ms-1">{{ p.player_name }} — {{ p.deck_name }}</span>
+                  <span v-for="p in m.participants" :key="p.pk" class="badge border-mtg ms-1 text-muted">{{ p.player_name }} — {{ p.deck_name }}</span>
                 </div>
                 <div v-if="m.rounds?.length">
                   <small class="text-mtg-muted text-uppercase">Rounds:</small>
-                  <span v-for="r in m.rounds" :key="r.pk" class="badge rounded-pill ms-1" :class="statusBadge(r.status)">Rd {{ r.number }}: {{ r.status_display }}</span>
+                  <span v-for="r in m.rounds" :key="r.pk" class="badge rounded-pill ms-1 text-muted" :class="statusBadge(r.status)">Round {{ r.number }}: {{ r.status_display }}</span>
                 </div>
               </div>
             </div>
@@ -249,8 +249,10 @@
         <div class="modal-content" data-testid="create-match-dialog">
           <div class="modal-header"><h5 class="modal-title text-mtg-light">Create Match</h5><button class="btn-close" @click="showMatchModal = false"></button></div>
           <div class="modal-body">
-            <label class="form-label text-mtg-secondary small">Match Number</label>
-            <input v-model.number="matchNumber" type="number" min="1" class="form-control form-control-dark" data-testid="match-number-input" />
+            <div class="mb-3">
+              <label class="form-label text-mtg-secondary small">Match Number</label>
+              <input v-model.number="matchNumber" type="number" min="1" class="form-control form-control-dark" data-testid="match-number-input" />
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-mtg-outline" @click="showMatchModal = false">Cancel</button>
@@ -307,7 +309,7 @@
               <label class="form-label text-mtg-secondary small">Player</label>
               <select v-model="resultForm.player" class="form-select form-control-dark" data-testid="result-player-select">
                 <option value="">Select player</option>
-                <option v-for="p in players" :key="p.pk" :value="p.pk">{{ p.player_name }}</option>
+                <option v-for="p in selectedMatch?.participants" :key="p.pk" :value="p.pk">{{ p.player_name }}</option>
               </select>
             </div>
             <div class="mb-3">
@@ -358,6 +360,7 @@ const selectedMatch = ref(null)
 const matchNumber = ref(1)
 
 const deckForm = reactive({ name: '', url: '', league_player: '' })
+const matchForm = reactive({ number: '', status: 'p' })
 const resultForm = reactive({ round: '', player: '', result: 'w', points: 0 })
 const addPlayerForm = reactive({ username: '', })
 
@@ -382,7 +385,7 @@ async function loadData() {
     const lid = parseInt(pk)
     try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
     try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    //try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
+    try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
 
   } catch (e) {
     console.error(e)
@@ -411,8 +414,25 @@ async function handleAddPlayer() {
 }
 
 async function handleCreateMatch() {
-  try { await apiService.createMatch({ league: parseInt(pk), number: matchNumber.value }); showMatchModal.value = false; loadData() }
-  catch (e) { alert('Failed: ' + JSON.stringify(e.response?.data || e.message)) }
+  try {
+    const matchRes = await apiService.createMatch({
+      league: parseInt(pk),
+      number: matchNumber.value
+    })
+
+    const createdMatch = matchRes.data
+    const roundsPerMatch = league.value?.format?.rounds_per_match || 1
+    for (let i = 1; i <= roundsPerMatch; i++) {
+      await apiService.createMatchRound({ match: createdMatch.pk, number: i, status: 'p' })
+    }
+
+    // later: create match_player_details here
+
+    showMatchModal.value = false
+    loadData()
+  } catch (e) {
+    alert('Failed: ' + JSON.stringify(e.response?.data || e.message))
+  }
 }
 
 async function handleCreateDeck() {
