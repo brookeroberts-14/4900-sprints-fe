@@ -54,9 +54,9 @@
             <div class="col-md-4">
               <div class="card dark-card p-3">
                 <h6 class="text-mtg-secondary small text-uppercase">Point System</h6>
-                <div class="d-flex justify-content-between"><span class="text-mtg-secondary">Win</span><span class="badge-win badge rounded-pill">{{ league.points_win }} pts</span></div>
-                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Loss</span><span class="badge-loss badge rounded-pill">{{ league.points_loss }} pts</span></div>
-                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Draw</span><span class="badge-draw badge rounded-pill">{{ league.points_draw }} pts</span></div>
+                <div class="d-flex justify-content-between"><span class="text-mtg-secondary">Win</span><span class="badge-win badge rounded-pill text-black">{{ league.points_win }} pts</span></div>
+                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Loss</span><span class="badge-loss badge rounded-pill text-black">{{ league.points_loss }} pts</span></div>
+                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Draw</span><span class="badge-draw badge rounded-pill text-black">{{ league.points_draw }} pts</span></div>
               </div>
             </div>
             <div class="col-md-4">
@@ -380,15 +380,26 @@ async function loadData() {
   try {
     const res = await apiService.getLeagueDetail(pk)
     league.value = res.data
-    loading.value = false
-
     const lid = parseInt(pk)
-    try { players.value = ((await apiService.getLeaguePlayers()).data.data || []).filter(p => p.league === lid) } catch {} 
-    try { decks.value = ((await apiService.getDecks()).data.data || []).filter(d => d.league_player?.league === lid) } catch {}
-    try { matches.value = ((await apiService.getMatches()).data.data || []).filter(m => m.league === lid) } catch {}
 
+    try { 
+      const playerRes = await apiService.getLeaguePlayers()
+      players.value = (playerRes.data.data || []).filter(p => p.league === lid) 
+    } catch (e) { console.error("Player load error", e) }
+
+    try { 
+      const deckRes = await apiService.getDecks()
+      decks.value = (deckRes.data.data || []).filter(d => d.league_id === lid) 
+    } catch (e) { console.error("Deck load error", e) }
+
+    try { 
+      const matchRes = await apiService.getMatches()
+      matches.value = (matchRes.data.data || []).filter(m => m.league === lid) 
+    } catch (e) { console.error("Match load error", e) }
+
+    loading.value = false
   } catch (e) {
-    console.error(e)
+    console.error("General load error", e)
     loading.value = false
   }
 }
@@ -436,11 +447,29 @@ async function handleCreateMatch() {
 }
 
 async function handleCreateDeck() {
-  if (!deckForm.name || !deckForm.league_player) return
+  if (!deckForm.name || !deckForm.league_player) return;
+
   try {
-    await apiService.createDeck({ name: deckForm.name, url: deckForm.url || '', league_player: parseInt(deckForm.league_player) })
-    showDeckModal.value = false; Object.assign(deckForm, { name: '', url: '', league_player: '' }); loadData()
-  } catch (e) { alert('Failed: ' + JSON.stringify(e.response?.data || e.message)) }
+    const response = await apiService.createDeck({ 
+      name: deckForm.name, 
+      url: deckForm.url || '', 
+      league_player: parseInt(deckForm.league_player) 
+    });
+
+    console.log("Deck Created:", response.data);
+
+    showDeckModal.value = false;
+
+    deckForm.name = '';
+    deckForm.url = '';
+    deckForm.league_player = '';
+
+    await loadData();
+    
+  } catch (e) {
+    console.error("Submission error:", e);
+    alert('Failed: ' + (e.response?.data?.detail || JSON.stringify(e.response?.data) || e.message));
+  }
 }
 
 function openResult(m) {

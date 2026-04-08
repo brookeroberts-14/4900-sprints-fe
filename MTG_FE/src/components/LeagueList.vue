@@ -31,7 +31,7 @@
                   <tr v-for="league in leagues" :key="league.pk">
                     <td>{{ league.pk }}</td>
                     <td>{{ league.name }}</td>
-                    <td>{{ league.format.name }}</td>
+                    <td>{{ league.format_details.name }}</td>
                     <td class="text-center">
                       <button class="btn btn-sm btn-info text-white"><router-link  :to="{name: 'LeagueDetail', params: { pk: league.pk } }" class="text-white" style="text-decoration: none;">Details</router-link></button>
                     </td>

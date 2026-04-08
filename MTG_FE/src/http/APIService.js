@@ -93,4 +93,10 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.post(url, matchRoundPlayer, { headers: headers });
   }
+  createDeck(deck) {
+    const url = `${API_URL}/league_tracker/decks/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, deck, { headers: headers });
+  }
 }
