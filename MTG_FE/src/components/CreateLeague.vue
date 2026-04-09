@@ -120,7 +120,7 @@ async function handleSubmit() {
 
         const res = await apiService.createLeague(payload)
         showMsg.value = 'success'
-        setTimeout(() => router.push(`/league/${res.data.pk}`), 500)
+        setTimeout(() => router.push(`/league_detail/${res.data.pk}`), 500)
     }   catch (e) {
         showMsg.value = 'error'
         console.error(e)
