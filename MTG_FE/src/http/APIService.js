@@ -99,4 +99,13 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.post(url, deck, { headers: headers });
   }
+  deleteLeague(pk) {
+    const url = `${API_URL}/league_tracker/league/${pk}/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.delete(url, { headers: headers });
+  }
+  createMatchPlayerDetail(data) {
+    return axios.post(`${API_URL}/league_tracker/match_players`, data);
+  }
 }

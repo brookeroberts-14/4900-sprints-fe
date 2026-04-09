@@ -2,8 +2,11 @@
     <div class="container-fluid mt-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <button class="btn btn-mtg-outline btn-sm mb-3" @click="router.back()" data-testid="create-league-back-btn">
-                </button>
+                <div class="d-flex justify-content-start">
+                    <button class="btn btn-outline-danger btn-md mb-3" @click="router.back()" data-testid="create-league-back-btn">
+                        <font-awesome-icon :icon="['fas', 'arrow-left']" class="me-1" /> Cancel
+                    </button>
+                </div>
                 <div class="card dark-card shadow">
                     <div class="card-header">
                         <div v-if="showMsg === 'error'" class="alert alert-danger">Failed to create league. Please try again.</div>
@@ -65,7 +68,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-mtg-primary w-100" :disabled="loading" data-testid="create-league-submit-btn">
+                            <button type="submit" class="btn btn-outline-success btn-md w-10" :disabled="loading" data-testid="create-league-submit-btn">
                                 {{ loading ? 'Creating...' : 'Create League' }}
                             </button>
                         </form>

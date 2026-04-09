@@ -135,7 +135,7 @@
                     <span class="badge rounded-pill ms-2" :class="statusBadge(m.status)">{{ m.status_display }}</span>
                   </div>
                   <div class="d-flex gap-2">
-                    <button class="btn btn-mtg-outline btn-sm" @click="openResult(m)" :data-testid="`record-result-btn-${m.pk}`">Record Result</button>
+                    <button class="btn btn-outline-secondary btn-sm" @click="openResult(m)" :data-testid="`record-result-btn-${m.pk}`">Record Result</button>
                     <button class="btn btn-outline-danger btn-sm" @click="handleDeleteMatch(m.pk)" :data-testid="`delete-match-btn-${m.pk}`">
                       <font-awesome-icon :icon="['fas', 'trash']" />
                     </button>
@@ -228,8 +228,8 @@
                   <input 
                     v-model="addPlayerForm.username" 
                     type="text" 
-                    class="form-control bg-dark text-white border-secondary" 
-                    placeholder="Enter player details..."
+                    class="form-control text-black border-secondary" 
+                    placeholder="Enter player Username or ID"
                     required
                   >
                   <div class="form-text text-muted">Enter the exact ID or Username of the player.</div>
@@ -243,6 +243,7 @@
           </div>
         </div>
       </div>
+
     <!-- Create Match Modal -->
     <div v-if="showMatchModal" class="modal d-block modal-dark" @click.self="showMatchModal = false">
       <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -309,7 +310,7 @@
               <label class="form-label text-mtg-secondary small">Player</label>
               <select v-model="resultForm.player" class="form-select form-control-dark" data-testid="result-player-select">
                 <option value="">Select player</option>
-                <option v-for="p in selectedMatch?.participants" :key="p.pk" :value="p.pk">{{ p.player_name }}</option>
+                <option v-for="p in selectedMatch?.participants" :key="p.pk" :value="p.pk">{{ p.player_username }}</option>
               </select>
             </div>
             <div class="mb-3">
@@ -406,7 +407,7 @@ async function loadData() {
 
 async function handleJoin() {
   try { await apiService.createLeaguePlayer({ league: parseInt(pk) }); showJoin.value = false; loadData() }
-  catch (e) { alert('Failed to join: ' + JSON.stringify(e.response?.data.detail || e.message)) }
+  catch (e) { alert('Failed to join: ' + JSON.stringify(e.response?.data?.detail || e.message)) }
 }
 
 async function handleAddPlayer() {
@@ -420,7 +421,7 @@ async function handleAddPlayer() {
     addPlayerForm.username = '';
     loadData();
   } catch (e) {
-    alert('Failed to add player: ' + JSON.stringify(e.response?.data || e.message));
+    alert('Failed to add player: ' + JSON.stringify(e.response?.data?.detail || e.message));
   }
 }
 
@@ -429,15 +430,13 @@ async function handleCreateMatch() {
     const matchRes = await apiService.createMatch({
       league: parseInt(pk),
       number: matchNumber.value
-    })
+    });
 
     const createdMatch = matchRes.data
     const roundsPerMatch = league.value?.format?.rounds_per_match || 1
     for (let i = 1; i <= roundsPerMatch; i++) {
       await apiService.createMatchRound({ match: createdMatch.pk, number: i, status: 'p' })
     }
-
-    // later: create match_player_details here
 
     showMatchModal.value = false
     loadData()
@@ -474,6 +473,7 @@ async function handleCreateDeck() {
 
 function openResult(m) {
   selectedMatch.value = m
+  console.log("Match Data", m);
   resultForm.round = ''; resultForm.player = ''; resultForm.result = 'w'
   resultForm.points = league.value?.points_win || 0
   showResultModal.value = true
