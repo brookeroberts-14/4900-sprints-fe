@@ -105,7 +105,10 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.delete(url, { headers: headers });
   }
-  createMatchPlayerDetail(data) {
-    return axios.post(`${API_URL}/league_tracker/match_players`, data);
+  createMatchPlayerDetail(matchPlayerDetail) {
+    const url = `${API_URL}/league_tracker/match_players/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, matchPlayerDetail, { headers: headers });
   }
 }

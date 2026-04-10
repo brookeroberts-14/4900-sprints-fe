@@ -19,11 +19,11 @@
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
+                  <h2 class="text-mtg-light mb-1" data-testid="league-name">{{ league.name }}</h2>
                   <div class="d-flex align-items-center gap-2 mb-2">
                     <span class="badge rounded-pill" :class="statusBadge(league.status)" data-testid="league-status-badge">{{ league.status_display }}</span>
-                    <span v-if="league.format" class="badge rounded-pill bg-primary bg-opacity-25 text-info">{{ league.format.name }}</span>
+                    <span v-if="league.format_details" class="badge rounded-pill bg-primary bg-opacity-25 text-info">{{ league.format_details.name }}</span>
                   </div>
-                  <h2 class="text-mtg-light mb-1" data-testid="league-name">{{ league.name }}</h2>
                   <p class="text-mtg-secondary small mb-0">
                     {{ players.length }} players &middot; {{ matches.length }} matches &middot; {{ decks.length }} decks
                   </p>
@@ -64,7 +64,7 @@
                 <h6 class="text-mtg-secondary small text-uppercase">League Info</h6>
                 <div class="d-flex justify-content-between"><span class="text-mtg-secondary">Decks/User</span><span class="text-mtg-secondary">{{ league.decks_per_user }}</span></div>
                 <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Match Qty</span><span class="text-mtg-secondary">{{ league.match_qty }}</span></div>
-                <div v-if="league.format" class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Format</span><span class="text-mtg-secondary">{{ league.format.name }}</span></div>
+                <div class="d-flex justify-content-between mt-1"><span class="text-mtg-secondary">Format</span><span v-if="league.format_details" class="text-mtg-secondary">{{ league.format_details.name }}</span></div>
               </div>
             </div>
             <div class="col-md-4">
@@ -122,7 +122,7 @@
           <div v-if="activeTab === 'matches'">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="text-mtg-light mb-0">Matches ({{ matches.length }})</h5>
-              <button class="btn btn-mtg-primary btn-sm" @click="showMatchModal = true" data-testid="create-match-btn">
+              <button class="btn btn-mtg-primary btn-sm" @click="openCreateMatchModal" data-testid="create-match-btn">
                 <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> New Match
               </button>
             </div>
@@ -252,7 +252,23 @@
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label text-mtg-secondary small">Match Number</label>
-              <input v-model.number="matchNumber" type="number" min="1" class="form-control form-control-dark" data-testid="match-number-input" />
+              <input v-model.number="matchNumber" type="number" min="1" class="form-control form-control-dark" data-testid="match-number-input"/>
+            </div>
+            <div v-for="(slot, index) in matchSlots" :key="index" class="border rounded p-3 mb-3">
+              <div class="mb-2">
+                <label class="form-label text-mtg-secondary small">Player {{ index + 1 }}</label>
+                <select v-model="slot.league_player" class="form-select form-control-dark">
+                <option value="">Select player</option>
+                <option v-for="p in players" :key="p.pk" :value="p.pk">{{ p.player_name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label text-mtg-secondary small">Deck</label>
+                <select v-model="slot.deck" class="form-select form-control-dark" :disabled="!slot.league_player">
+                <option value="">Select deck</option>
+                <option v-for="d in getDeckOptionsForPlayer(slot.league_player)" :key="d.pk" :value="d.pk">{{ d.name }}</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -310,7 +326,7 @@
               <label class="form-label text-mtg-secondary small">Player</label>
               <select v-model="resultForm.player" class="form-select form-control-dark" data-testid="result-player-select">
                 <option value="">Select player</option>
-                <option v-for="p in selectedMatch?.participants" :key="p.pk" :value="p.pk">{{ p.player_username }}</option>
+                <option v-for="p in selectedMatch?.participants" :key="p.pk" :value="p.pk">{{ p.player_name }}</option>
               </select>
             </div>
             <div class="mb-3">
@@ -359,9 +375,9 @@ const showDeckModal = ref(false)
 const showResultModal = ref(false)
 const selectedMatch = ref(null)
 const matchNumber = ref(1)
+const matchSlots = ref([])
 
 const deckForm = reactive({ name: '', url: '', league_player: '' })
-const matchForm = reactive({ number: '', status: 'p' })
 const resultForm = reactive({ round: '', player: '', result: 'w', points: 0 })
 const addPlayerForm = reactive({ username: '', })
 
@@ -377,6 +393,22 @@ const statusBadge = (s) => ({ a: 'badge-active', c: 'badge-completed', p: 'badge
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : 'N/A'
 const leaderboard = computed(() => [...players.value].sort((a, b) => b.league_player_points - a.league_player_points))
 
+function getDeckOptionsForPlayer(leaguePlayerPk) {
+  return decks.value.filter(d => d.league_player?.pk === leaguePlayerPk)
+}
+
+function openCreateMatchModal() {
+  matchNumber.value = matches.value.length + 1
+
+  const seats = league.value?.format_details?.players_per_match || 0
+  matchSlots.value = Array.from({ length: seats }, () => ({
+    league_player: '',
+    deck: ''
+  }))
+
+  showMatchModal.value = true
+}
+
 async function loadData() {
   try {
     const res = await apiService.getLeagueDetail(pk)
@@ -390,7 +422,7 @@ async function loadData() {
 
     try { 
       const deckRes = await apiService.getDecks()
-      decks.value = (deckRes.data.data || []).filter(d => d.league_id === lid) 
+      decks.value = (deckRes.data.data || []).filter(d => d.league_player?.league === lid) 
     } catch (e) { console.error("Deck load error", e) }
 
     try { 
@@ -427,19 +459,43 @@ async function handleAddPlayer() {
 
 async function handleCreateMatch() {
   try {
-    const matchRes = await apiService.createMatch({
-      league: parseInt(pk),
-      number: matchNumber.value
-    });
+    const expectedPlayers = league.value?.format_details?.players_per_match || 0
+    const roundsPerMatch = league.value?.format_details?.rounds_per_match || 1
 
+    if (matchSlots.value.length !== expectedPlayers) {
+      alert(`This format requires exactly ${expectedPlayers} players.`)
+      return
+    }
+
+    const selectedPlayers = matchSlots.value.map(slot => slot.league_player)
+
+    if (selectedPlayers.some(playerId => !playerId)) {
+      alert('Please select a player for every slot.')
+      return
+    }
+
+    if (new Set(selectedPlayers).size !== selectedPlayers.length) {
+      alert('A player can only be selected once per match.')
+      return
+    }
+
+    const matchRes = await apiService.createMatch({league: parseInt(pk), number: matchNumber.value, status: 'p'})
     const createdMatch = matchRes.data
-    const roundsPerMatch = league.value?.format?.rounds_per_match || 1
+
+    for (const slot of matchSlots.value) {
+      await apiService.createMatchPlayerDetail({
+        match: createdMatch.pk, league_player: parseInt(slot.league_player), deck: slot.deck ? parseInt(slot.deck) : null
+      })
+    }
+
     for (let i = 1; i <= roundsPerMatch; i++) {
-      await apiService.createMatchRound({ match: createdMatch.pk, number: i, status: 'p' })
+      await apiService.createMatchRound({match: createdMatch.pk, number: i, status: 'p'
+      })
     }
 
     showMatchModal.value = false
-    loadData()
+    matchSlots.value = []
+    await loadData()
   } catch (e) {
     alert('Failed: ' + JSON.stringify(e.response?.data || e.message))
   }
@@ -487,7 +543,7 @@ function updatePoints() {
 async function handleRecordResult() {
   if (!resultForm.round || !resultForm.player) return
   try {
-    await apiService.createMatchRoundPlayer({ round: parseInt(resultForm.round), player: parseInt(resultForm.player), result: resultForm.result, points: resultForm.points })
+    await apiService.createMatchRoundPlayer({ round: parseInt(resultForm.round), match_player: parseInt(resultForm.player), result: resultForm.result, points: resultForm.points })
     showResultModal.value = false; loadData()
   } catch (e) { alert('Failed: ' + JSON.stringify(e.response?.data || e.message)) }
 }
