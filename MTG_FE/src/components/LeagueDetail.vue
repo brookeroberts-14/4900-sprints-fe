@@ -548,7 +548,7 @@ function updatePoints() {
 async function handleRecordResult() {
   if (!resultForm.round || !resultForm.player) return
   try {
-    await apiService.createMatchRoundPlayer({ round: parseInt(resultForm.round), match_player: parseInt(resultForm.player), result: resultForm.result, points: resultForm.points })
+    await apiService.createMatchRoundPlayer({ round: parseInt(resultForm.round), player: parseInt(resultForm.player), result: resultForm.result})
     showResultModal.value = false; loadData()
   } catch (e) { alert('Failed: ' + JSON.stringify(e.response?.data || e.message)) }
 }
