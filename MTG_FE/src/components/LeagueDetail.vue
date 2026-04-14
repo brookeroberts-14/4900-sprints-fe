@@ -422,7 +422,9 @@ async function loadData() {
 
     try { 
       const deckRes = await apiService.getDecks()
-      decks.value = (deckRes.data.data || []).filter(d => d.league_player?.league === lid) 
+      const allDecks = deckRes.data.data || [];
+      //decks.value = (deckRes.data.data || []).filter(d => d.league_player?.league_id === lid) 
+      decks.value = allDecks.filter(d => d.league_id == lid);
     } catch (e) { console.error("Deck load error", e) }
 
     try { 

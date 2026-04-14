@@ -40,10 +40,10 @@
           </div>
         </div>
         <div class="text-center mt-3">
-            <button type="button" class="btn btn-primary btn-sm shadow-sm">
-                Create New Format
-            </button>
-      </div>
+          <button type="button" class="btn btn-primary btn-sm shadow-sm">
+            <router-link :to="{name: 'CreateFormat'}" class="text-white" style="text-decoration: none;"> Create New Format</router-link>
+          </button>
+        </div>
       </div>
     </div>
   </div>

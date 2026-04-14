@@ -6,6 +6,7 @@ import LeagueList from '../components/LeagueList.vue'
 import FormatList from '../components/FormatList.vue'
 import LeagueDetail from '../components/LeagueDetail.vue'
 import CreateLeague from '../components/CreateLeague.vue'
+import CreateFormat from '../components/CreateFormat.vue'
 
 const routes = [
   {
@@ -42,7 +43,12 @@ const routes = [
     path: '/create_league',
     name: 'CreateLeague',
     component: CreateLeague
-  }
+  },
+  {
+    path: '/create_format',
+    name: 'CreateFormat',
+    component: CreateFormat
+  },
 ]
 
 

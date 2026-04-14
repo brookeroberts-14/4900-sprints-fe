@@ -111,4 +111,10 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.post(url, matchPlayerDetail, { headers: headers });
   }
+  createFormat(format) {
+    const url = `${API_URL}/league_tracker/formats/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+    return axios.post(url, format, { headers: headers });
+  }
 }
