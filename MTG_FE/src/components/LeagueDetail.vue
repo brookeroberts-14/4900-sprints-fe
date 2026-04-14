@@ -19,9 +19,9 @@
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
-                  <h2 class="text-mtg-light mb-1" data-testid="league-name">{{ league.name }}</h2>
+                  <h2 class="text-mtg-light mb-1" style="text-align: left;" data-testid="league-name">{{ league.name }}</h2>
                   <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge rounded-pill" :class="statusBadge(league.status)" data-testid="league-status-badge">{{ league.status_display }}</span>
+                    <span class="badge rounded-pill text-black" :class="statusBadge(league.status)" data-testid="league-status-badge">{{ league.status_display }}</span>
                     <span v-if="league.format_details" class="badge rounded-pill bg-primary bg-opacity-25 text-info">{{ league.format_details.name }}</span>
                   </div>
                   <p class="text-mtg-secondary small mb-0">
