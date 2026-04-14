@@ -266,7 +266,9 @@
                 <label class="form-label text-mtg-secondary small">Deck</label>
                 <select v-model="slot.deck" class="form-select form-control-dark" :disabled="!slot.league_player">
                 <option value="">Select deck</option>
-                <option v-for="d in getDeckOptionsForPlayer(slot.league_player)" :key="d.pk" :value="d.pk">{{ d.name }}</option>
+                <option v-for="d in getDeckOptionsForPlayer(slot.league_player)" :key="d.pk" :value="d.pk">
+                  {{ d.name }}
+                </option>
                 </select>
               </div>
             </div>
@@ -394,7 +396,8 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : 'N/A'
 const leaderboard = computed(() => [...players.value].sort((a, b) => b.league_player_points - a.league_player_points))
 
 function getDeckOptionsForPlayer(leaguePlayerPk) {
-  return decks.value.filter(d => d.league_player?.pk === leaguePlayerPk)
+  if (!leaguePlayerPk) return [];
+  return decks.value.filter(d => d.league_player == leaguePlayerPk);
 }
 
 function openCreateMatchModal() {
