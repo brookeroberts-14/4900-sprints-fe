@@ -167,9 +167,67 @@
                 <div class="card dark-card p-3">
                   <h6 class="text-mtg-light mb-1">{{ d.name }}</h6>
                   <small class="text-mtg-secondary">{{ d.league_player?.player_name }}</small>
+                  <button
+                    class="btn btn-outline-secondary btn-sm mt-2"
+                    @click="openEditDeck(d)"
+                    >
+                    <font-awesome-icon :icon="['fas', 'pen']" class="me-1" />
+                    Edit
+                  </button>
                   <a v-if="d.url" :href="d.url" target="_blank" class="text-mtg-accent small mt-2 d-block" :data-testid="`deck-url-${d.pk}`">
                     <font-awesome-icon :icon="['fas', 'external-link']" class="me-1" /> View Deck List
                   </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Deck Modal -->
+          <div v-if="showEditDeckModal" class="modal d-block modal-dark" @click.self="showEditDeckModal = false">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-mtg-light">Edit Deck</h5>
+                  <button class="btn-close" @click="showEditDeckModal = false"></button>
+                </div>
+
+                <div class="modal-body">
+                  <!-- PLAYER (READ ONLY) -->
+                  <div class="mb-3">
+                    <label class="form-label text-mtg-secondary small">Player</label>
+                    <input
+                      :value="editingDeck?.player_name || ''"
+                      class="form-control form-control-dark"
+                      readonly
+                    />
+                    <small class="text-mtg-secondary">Deck owner cannot be changed.</small>
+                  </div>
+
+                  <!-- DECK NAME (READ ONLY) -->
+                  <div class="mb-3">
+                    <label class="form-label text-mtg-secondary small">Deck Name</label>
+                    <input
+                      v-model="editDeckForm.name"
+                      class="form-control form-control-dark"
+                      readonly
+                    />
+                    <small class="text-mtg-secondary">Deck name cannot be changed.</small>
+                  </div>
+
+                  <!-- URL (EDITABLE) -->
+                  <div class="mb-3">
+                    <label class="form-label text-mtg-secondary small">Deck URL</label>
+                    <input
+                      v-model="editDeckForm.url"
+                      class="form-control form-control-dark"
+                      placeholder="https://moxfield.com/decks/..."
+                    />
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button class="btn btn-mtg-outline" @click="showEditDeckModal = false">Cancel</button>
+                  <button class="btn btn-mtg-primary" @click="handleUpdateDeck">Save</button>
                 </div>
               </div>
             </div>
@@ -380,8 +438,16 @@ const matchNumber = ref(1)
 const matchSlots = ref([])
 
 const deckForm = reactive({ name: '', url: '', league_player: '' })
+const showEditDeckModal = ref(false)
+const editingDeck = ref(null)
 const resultForm = reactive({ round: '', player: '', result: 'w', points: 0 })
 const addPlayerForm = reactive({ username: '', })
+
+const editDeckForm = reactive({
+  name: '',
+  url: '',
+  league_player: ''
+})
 
 const tabs = [
   { key: 'overview', label: 'Overview', icon: 'trophy' },
@@ -410,6 +476,43 @@ function openCreateMatchModal() {
   }))
 
   showMatchModal.value = true
+}
+
+function openEditDeck(deck) {
+  editingDeck.value = deck
+  editDeckForm.name = deck.name
+  editDeckForm.url = deck.url || ''
+  editDeckForm.league_player = deck.league_player
+  showEditDeckModal.value = true
+}
+
+async function handleUpdateDeck() {
+  console.log('handleUpdateDeck fired')
+
+  if (!editingDeck.value) {
+    alert('No deck selected.')
+    return
+  }
+
+  try {
+    await apiService.updateDeck(editingDeck.value.pk, {
+      name: editingDeck.value.name,
+      league_player: editingDeck.value.league_player,
+      url: editDeckForm.url || ''
+    })
+
+    showEditDeckModal.value = false
+    editingDeck.value = null
+    editDeckForm.name = ''
+    editDeckForm.url = ''
+    editDeckForm.league_player = ''
+
+    await loadData()
+    alert('Deck updated successfully.')
+  } catch (e) {
+    console.error('Deck update failed:', e)
+    alert('Failed to update deck: ' + (e.response?.data?.detail || JSON.stringify(e.response?.data) || e.message))
+  }
 }
 
 async function loadData() {

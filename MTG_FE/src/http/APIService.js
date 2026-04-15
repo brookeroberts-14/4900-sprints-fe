@@ -99,6 +99,12 @@ export class APIService {
     const headers = { Authorization: `JWT ${jwtToken}` };
     return axios.post(url, deck, { headers: headers });
   }
+  updateDeck(pk, deck) {
+    const url = `${API_URL}/league_tracker/deck/${pk}/`;
+    let jwtToken = localStorage.getItem("access");
+    const headers = { Authorization: `JWT ${jwtToken}` };
+  return axios.put(url, deck, { headers: headers });
+  }
   deleteLeague(pk) {
     const url = `${API_URL}/league_tracker/league/${pk}/`;
     let jwtToken = localStorage.getItem("access");
