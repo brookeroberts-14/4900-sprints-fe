@@ -1,7 +1,7 @@
 import axios from "axios";
 // Change the API_URL to the correct location of the backend API before deploying the app
 const API_URL =
-  "http://127.0.0.1:8000" //"https://brooke14roberts.pythonanywhere.com/"; /* 'http://localhost:8000' or  'http://yourPythonAnywhereName.pythonanywhere.com/'*/
+  "https://brooke14roberts.pythonanywhere.com/"; /* 'http://localhost:8000' or  'http://yourPythonAnywhereName.pythonanywhere.com/'*/
 
 export class APIService {
   constructor() {}
