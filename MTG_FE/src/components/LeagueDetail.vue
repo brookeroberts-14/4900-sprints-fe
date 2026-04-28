@@ -21,7 +21,9 @@
                 <div>
                   <h2 class="text-mtg-light mb-1" style="text-align: left;" data-testid="league-name">{{ league.name }}</h2>
                   <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge rounded-pill text-black" :class="statusBadge(league.status)" data-testid="league-status-badge">{{ league.status_display }}</span>
+                    <span class="badge rounded-pill text-black" :class="statusBadge(computedLeagueStatus)">
+                      {{ statusText(computedLeagueStatus) }}
+                    </span>
                     <span v-if="league.format_details" class="badge rounded-pill bg-primary bg-opacity-25 text-info">{{ league.format_details.name }}</span>
                   </div>
                   <p class="text-mtg-secondary small mb-0">
@@ -457,7 +459,30 @@ const tabs = [
   { key: 'leaderboard', label: 'Leaderboard', icon: 'crown' },
 ]
 
-const statusBadge = (s) => ({ a: 'badge-active', c: 'badge-completed', p: 'badge-pending' }[s] || 'badge-pending')
+const statusBadge = (s) => ({ 
+  a: 'badge-active', 
+  c: 'badge-completed', 
+  p: 'badge-pending' 
+}[s] || 'badge-pending')
+
+const statusText = (s) => ({
+  a: 'Active',
+  c: 'Completed',
+  p: 'Pending'
+}[s] || 'Pending')
+
+const computedLeagueStatus = computed(() => {
+  if (!league.value) return 'p'
+
+  const now = new Date()
+  const start = new Date(league.value.start_date)
+  const end = new Date(league.value.end_date)
+
+  if (now < start) return 'p'
+  if (now > end) return 'c'
+  return 'a'
+})
+
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : 'N/A'
 const leaderboard = computed(() => [...players.value].sort((a, b) => b.league_player_points - a.league_player_points))
 
@@ -518,6 +543,9 @@ async function handleUpdateDeck() {
 async function loadData() {
   try {
     const res = await apiService.getLeagueDetail(pk)
+    console.log("LEAGUE DETAIL RESPONSE:", res.data)
+    console.log("STATUS:", res.data.status, res.data.status_display)
+    console.log("DATES:", res.data.start_date, res.data.end_date)
     league.value = res.data
     const lid = parseInt(pk)
 
