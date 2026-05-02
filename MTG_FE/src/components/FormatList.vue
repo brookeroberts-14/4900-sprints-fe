@@ -13,6 +13,10 @@
               <div class="spinner-border text-info"></div>
             </div>
 
+            <div v-else-if="showMsg === 'error'" class="alert alert-danger">
+              Unable to load leagues. Please ensure you are logged in or API is on.
+            </div>
+
             <div v-else class="table-responsive">
               <table class="table table-hover align-middle">
                 <thead class="table-light">

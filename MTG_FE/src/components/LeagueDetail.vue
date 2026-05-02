@@ -31,13 +31,15 @@
                   </p>
                 </div>
                 <div class="d-flex gap-2">
-                  <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="join-league-btn">
-                    <font-awesome-icon :icon="['fas', 'users']" class="me-1" /> Join
-                  </button>
-                  <button class="btn btn-outline-danger btn-sm" @click="handleDeleteLeague" data-testid="delete-league-btn">
+                <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="join-league-btn">
+                  <font-awesome-icon :icon="['fas', 'users']" class="me-1" /> Join
+                </button>
+                
+                <button 
+                  v-if="canDeleteLeague" class="btn btn-outline-danger btn-sm" @click="handleDeleteLeague">
                     <font-awesome-icon :icon="['fas', 'trash']" />
-                  </button>
-                </div>
+                </button>
+              </div>
               </div>
             </div>
           </div>
@@ -685,9 +687,20 @@ async function handleRecordResult() {
 }
 
 async function handleDeleteLeague() {
-  if (!confirm(`Delete "${league.value?.name}"?`)) return
-  try { await apiService.deleteLeague(pk); router.push('/leagues') }
-  catch (e) { alert('Failed to delete') }
+  // Double check permissions in the logic
+  if (!canDeleteLeague.value) {
+    alert("You do not have permission to delete this league.");
+    return;
+  }
+
+  if (!confirm(`Delete "${league.value?.name}"?`)) return;
+  
+  try { 
+    await apiService.deleteLeague(pk); 
+    router.push('/leagues');
+  } catch (e) { 
+    alert('Failed to delete: ' + (e.response?.data?.detail || 'Unauthorized'));
+  }
 }
 
 async function handleDeleteMatch(pk) {
@@ -709,6 +722,58 @@ async function handleRemovePlayer(playerPk) {
     alert('Failed to remove player: ' + (e.response?.data?.detail || e.message));
   }
 }
+
+//HANDLE AUTHORIZATION FOR DELETING LEAGUES
+// Function to decode JWT tokens
+const getUserIdFromToken = () => {
+  const token = localStorage.getItem('access');
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(window.atob(base64));
+    return payload.user_id || payload.sub; 
+  } catch (e) {
+    return null;
+  }
+};
+
+const getAuthData = () => {
+  const token = localStorage.getItem('access');
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(window.atob(base64));
+    
+    return {
+      userId: payload.user_id || payload.sub,
+      isSuperuser: payload.is_superuser || false,
+      isStaff: payload.is_staff || false
+    };
+  } catch (e) {
+    console.error("Token decode error:", e);
+    return null;
+  }
+};
+
+const canDeleteLeague = computed(() => {
+  if (!league.value) return false;
+
+  const auth = getAuthData();
+  if (!auth) return false;
+
+  const creatorId = league.value.owner;
+  const userId = auth.userId;
+  
+  // Permission logic:
+  const isOwner = userId && creatorId && String(userId) === String(creatorId);
+  const isAdmin = auth.isSuperuser || auth.isStaff;
+
+  console.log("PERMISSIONS:", { isOwner, isAdmin, userId, creatorId });
+
+  return isOwner || isAdmin;
+});
 
 onMounted(loadData)
 </script>
