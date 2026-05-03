@@ -126,9 +126,12 @@
           <div v-if="activeTab === 'matches'">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="text-mtg-light mb-0">Matches ({{ matches.length }})</h5>
-              <button class="btn btn-mtg-primary btn-sm" @click="openCreateMatchModal" data-testid="create-match-btn">
+              <button class="btn btn-mtg-primary btn-sm" @click="openCreateMatchModal" :disabled="!canCreateMatch" data-testid="create-match-btn">
                 <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> New Match
               </button>
+              <small v-if="!canCreateMatch" class="text-danger ms-2">
+                Match limit reached.
+              </small>
             </div>
             <div v-if="matches.length === 0" class="text-center text-mtg-secondary py-3">No matches yet.</div>
             <div v-for="m in matches" :key="m.pk" class="card dark-card mb-3" :data-testid="`match-card-${m.pk}`">
@@ -487,6 +490,12 @@ const computedLeagueStatus = computed(() => {
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString() : 'N/A'
 const leaderboard = computed(() => [...players.value].sort((a, b) => b.league_player_points - a.league_player_points))
+
+const canCreateMatch = computed(() => {
+  if (!league.value) return false
+  if (!league.value.match_qty || league.value.match_qty <= 0) return true
+  return matches.value.length < league.value.match_qty
+})
 
 function getDeckOptionsForPlayer(leaguePlayerPk) {
   if (!leaguePlayerPk) return [];
