@@ -73,9 +73,9 @@ const register = () => router.push("/register")
           
           <template v-else>
             <span class="separator">|</span>
-            <span class="user-greeting">Hi, {{ userName }}</span>
+            <span class="user-greeting">Hi, {{ userName }}</span> 
             <li class="nav-item">
-              <a @click="logout" href="javascript:void(0)">Logout</a>
+              | <a @click="logout" href="javascript:void(0)">Logout</a>
             </li>
           </template>
         </ul>
