@@ -31,7 +31,11 @@
                   </p>
                 </div>
                 <div class="d-flex gap-2">
-                  <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="join-league-btn">
+                  <button
+                    v-if="computedLeagueStatus === 'p'"
+                    class="btn btn-mtg-primary btn-sm"
+                    @click="showJoin = true"
+                    data-testid="join-league-btn">
                     <font-awesome-icon :icon="['fas', 'users']" class="me-1" /> Join
                   </button>
                   <button class="btn btn-outline-danger btn-sm" @click="handleDeleteLeague" data-testid="delete-league-btn">
@@ -84,10 +88,15 @@
               <div class="card-header d-flex justify-content-between align-items-center">
                   <h5 class="mb-0 text-mtg-light">Players ({{ players.length }})</h5>
                 <div d-flex gap-2>
-                  <button class="btn btn-mtg-primary btn-sm" @click="showAddPlayerModal = true">
+                  <button
+                    v-if="computedLeagueStatus === 'p'"
+                    class="btn btn-mtg-primary btn-sm"
+                    @click="showAddPlayerModal = true"
+                    data-testid="add-player-btn"
+                  >
                     <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> Add Player
                   </button>
-                  <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="add-player-btn">
+                  <button class="btn btn-mtg-primary btn-sm" @click="showJoin = true" data-testid="join-league-btn">
                     <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> Join
                   </button>
                 </div>
@@ -159,7 +168,11 @@
           <div v-if="activeTab === 'decks'">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="text-mtg-light mb-0">Decks ({{ decks.length }})</h5>
-              <button class="btn btn-mtg-primary btn-sm" @click="showDeckModal = true" data-testid="add-deck-btn">
+              <button
+                v-if="computedLeagueStatus === 'p'"
+                class="btn btn-mtg-primary btn-sm"
+                @click="showDeckModal = true"
+                data-testid="add-deck-btn">
                 <font-awesome-icon :icon="['fas', 'plus']" class="me-1" /> Add Deck
               </button>
             </div>
@@ -170,9 +183,11 @@
                   <h6 class="text-mtg-light mb-1">{{ d.name }}</h6>
                   <small class="text-mtg-secondary">{{ d.league_player?.player_name }}</small>
                   <button
+                    v-if="computedLeagueStatus === 'p'"
                     class="btn btn-outline-secondary btn-sm mt-2"
                     @click="openEditDeck(d)"
-                    >
+                    data-testid="edit-deck-btn"
+                  >
                     <font-awesome-icon :icon="['fas', 'pen']" class="me-1" />
                     Edit
                   </button>
